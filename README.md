@@ -87,7 +87,7 @@ The following screenshots show a general look of our game, as well as its functi
 <br />
 
 <p align="center" justify="center">
-  <img src="docs/gifs/checkpoint.gif.gif"/>
+  <img src="docs/gifs/checkpoint.gif"/>
 </p>
 <p align="center">
   <b><i>Fig 8. Checkpoint</i></b>
