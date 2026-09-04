@@ -2,155 +2,152 @@
 
 ## Game Description
 
-This game is puzzle platform game where two players have to work together to complete the levels, by stepping into some buttons that opens doors and allows the other to continue, while escaping the monsters.
-The players have the possibility to increment their lives by collecting hearts and are able to go to the next level after catching the stars.
-The variety of levels will have some increased difficulty.
+BoyGirl Game is a cooperative puzzle platformer written in Java using the Lanterna terminal GUI library. Two players navigate through rooms containing enemies, obstacles, and collectibles. The game relies on teamwork: players step on buttons to open timed doors for each other, avoid patrolling monsters and directional traps, collect hearts to restore lives, and reach stars to advance across levels of increasing difficulty.
 
-This project was developed by Catarina Bastos (up202307631@up.pt). Nuno Costa (up202305503@up.pt) and Vasco Gonçalves (up202305513@up.pt).
+This project was developed for the **Laboratório de Desenho e Tecnologia de Software (LDTS)** course at **FEUP** by:
+- **Catarina Bastos** (up202307631@up.pt)
+- **Nuno Costa** (up202305503@up.pt)
+- **Vasco Gonçalves** (up202305513@up.pt)
+
+---
 
 ## Implemented Features
 
-- **Keyboard control** - The keyboard inputs are received and interpreted according to the current state of the game.
-- **Player Control** - Players can move left, right, up and down using keyboard controls (w,a,s,d for player1 and Arrows for player2).
-- **Collisions detection** - The collisions between the players and the obstacles/monsters are detected.
-- **Multiplayer Mode**: Enable cooperative or competitive gameplay for two players.
-- **Different Levels** - x different levels with soe increasing difficulty.
-- **Enemies** - NPCs like monsters that are moving randomly throughout the game and arrows that follow a straight path.
-- **Buttons** - When players go to these buttons it opens doors that allows the other player to continue.
-- **Checkpoints** - Allows the player, in case of their death, to go back yo a certain point in the game without having to restart it.
-- **Lives** - There´s a system that keeps track os the players' lives and some hearts spread through the game that gives the player that catches it another life.
-- **Risky Floor** - There are some parts of this floor that are safe and others that can kill the players.
+- **Keyboard Control**: Direct input handling that routes key commands to the active game state.
+- **Player Movement**: Independent controls for two players (`W`, `A`, `S`, `D` for Player 1; Arrow keys for Player 2).
+- **Collision Detection**: Precise collision checking between players, walls, hazards, enemies, and items.
+- **Cooperative Multiplayer**: Designed for local two-player cooperative gameplay.
+- **Level Progression**: Four distinct levels with custom layouts and escalating difficulty.
+- **Enemies & Hazards**: Patrolling monsters moving across the map and arrows traveling along straight paths.
+- **Interactive Buttons & Doors**: Buttons pressed by one player unlock timed doors to allow the other player to progress.
+- **Checkpoint System**: Respawn mechanics that return players to recent checkpoints upon death without restarting the entire level.
+- **Life System & Collectibles**: Life counter tracking player health, supplemented by heart items scattered across levels.
+- **Risky Floors**: Environmental traps featuring alternating safe and lethal floor segments.
+
+---
 
 ## Design Patterns
 
-### General Structure
-#### Problem:
-The first problem we encountered while doing our project was the disposition of its structure. 
-However, since our game is divided by different gameStates and has a GUI we decided to implement two patterns to solve this issue: **_Architectural Pattern_**, **_State Pattern_**.
+### General Structure (MVC & State Pattern)
 
-#### Patterns:
-Two main patterns were applied to the project, the **_Architectural Pattern_**, more specifically the Model-View-Controller style which is commonly used in a GUI and the **_State Pattern_** which is a behavioral design pattern that lets an object alter its behavior when its internal state changes.
+#### Problem
+Organizing the architecture of a terminal-based GUI game with multiple screens (menus, active levels, pause states, game over screens) can lead to tightly coupled code if UI rendering, user input, and game state logic are mixed together.
 
-#### Implementation:
-We created classes which we use to store data (model), to control the logic of the game (controllers) and that are responsible for the visual effects on the screen (viewers).
-As for the different states, they are divided with the same methodology as the mvc style, and allows the game to alter its behavior in a simple and efficient way.
+#### Pattern
+We combined the **Model-View-Controller (MVC)** architectural pattern with the **State Pattern**. MVC separates data models, rendering logic, and input/game logic. The State Pattern manages transitions between distinct runtime states (Menu, Gameplay, Pause, Win, Game Over).
 
-#### Consequences:
-The use of these patterns in the current design allow the following benefits:
-- Makes state transitions explicit.
-- MVC is ideal for applications with clear separation between UI and business logic, promoting scalability and testability.
-- Easy to add new features throughout the development stage.
+#### Implementation
+- **Model**: Stores entity positions, map layouts, player attributes, and game state variables.
+- **View**: Handles Lanterna GUI rendering and visual presentation.
+- **Controller**: Processes user actions and updates models accordingly.
+- **State**: Encapsulates state-specific controllers and viewers, allowing seamless transitions.
 
-### Observers/Listener Pattern
-#### Problem:
-Our game is controlled by the keyboard, and there are several ways to handle input. 
-For example, there's polling, a thread that constantly checks for input signals and sends them to the game. 
-This method can be inefficient because the game might keep asking for input even when there’s none, leading to unnecessary processing. 
-There is another way to do this, that is our approach, the **_Observer/Listener Pattern_**.
+#### Consequences
+- Clear separation between UI rendering and domain logic.
+- Explicit state transitions, simplifying addition of new menus or levels.
+- Improved testability and maintainability across components.
 
-#### Pattern:
-Instead of polling, we implemented the **_Observer/Listener Pattern_**, that uses observers or listeners that detect input and distribute it efficiently. 
-This reduces the program’s workload since it no longer has to repeatedly check for input.
+---
 
-#### Implementation:
-We store the observers in the main class (game class) and change its state according to the respective input processed by the available listener.
-In addiction, it is also used for updating the UI when the player's state changes, keeping track of the player's lives and triggering a game over screen when the players die.
+### Observer / Listener Pattern
 
-#### Consequences:
-Some consequences of using the stated pattern are:
-- Promotes a well organized code that follows the Single Responsibility Principle.
-- The game logic is separated from the input handling, making the code easier to manage.
-- You can easily add more observers or listeners without changing the existing code.
-- Has an efficient input handling, which makes the game only react to events when they happen, avoiding unnecessary checks.
+#### Problem
+Polling keyboard inputs in a dedicated loop can be computationally inefficient, repeatedly checking for key events even when no keys are pressed.
+
+#### Pattern
+We implemented the **Observer / Listener Pattern** to handle input events reactively, notifying relevant handlers only when an actual keyboard event occurs.
+
+#### Implementation
+Observers registered within the main `Game` class listen for Lanterna terminal input events. Input events are dispatched to the active state controller. This pattern is also used to trigger UI updates when player lives change or when a game over event occurs.
+
+#### Consequences
+- Adheres to the Single Responsibility Principle by decoupling input detection from game logic.
+- Eliminates unnecessary CPU usage from polling loops.
+- Simplifies registering new event handlers or UI listeners.
+
+---
 
 ### Composite Pattern
-#### Problem:
-In our game, we need to draw multiple elements, like game objects, which can be composed of smaller parts. Managing and drawing each element individually can lead to repetitive, complex, and unstructured code. To deal with this problem we resorted to the **_Composite Pattern_**.
 
-#### Pattern:
-The Composite Pattern is a structural design pattern that allows you to treat individual objects and compositions of objects uniformly. 
-It is used to represent part-whole hierarchies, enabling you to build complex structures by composing objects into tree-like arrangements. 
-This pattern makes it easy to work with both simple and complex objects using the same interface, simplifying operations like rendering, updating, or managing a group of related objects.
+#### Problem
+Managing and rendering individual game elements (players, walls, enemies, stars) individually would require repetitive rendering loops and unorganized drawing logic.
 
-#### Implementation:
-In our game, we use this pattern primarily to draw game objects like the boy, girl, walls, stars, etc. Each object, whether simple (ex: a single boy) or complex (ex: a list of walls), is treated as a component with a unified interface. 
-By organizing these objects into a tree-like structure, we can render all game elements consistently and efficiently. 
-This allows us to manage and update groups of objects, like a cluster of walls or multiple stars, with the same ease as individual objects.
+#### Pattern
+The **Composite Pattern** organizes objects into tree structures to represent part-whole hierarchies, allowing single objects and groups of objects to be treated uniformly through a shared interface.
 
-#### Consequences:
-Here are some consequences of using this pattern:
-- Simplifies code by allowing individual objects and groups of objects to be treated the same way, using a common interface.
-- Makes it easy to add new types of components without modifying existing code, adhering to the Open/Closed Principle.
-- Clean code.
-- Simplifies the drawing logic.
+#### Implementation
+All drawable game elements (Boy, Girl, Wall tiles, Stars, Doors) implement a common component interface. Complex structures (such as collections of walls or active enemies) can be rendered using the same drawing methods as individual entities.
+
+#### Consequences
+- Simplifies rendering loops across heterogeneous game elements.
+- Facilitates adding new drawable entities without modifying existing viewer code (Open/Closed Principle).
+- Keeps visual rendering code structured and readable.
+
+---
 
 ### Singleton Pattern
-#### Problem:
-While developing our game, we encountered several issues related to managing shared resources, maintaining consistent game states, and ensuring efficient communication between controllers and views.
-Multiple instances of key components, such as GameController, MenuController, and LanternaGui, were causing conflicts and inconsistencies in state management and resource allocation. 
-Additionally, accessing these components globally across different parts of the code became increasingly difficult. 
-To address these problems, we implemented the **_Singleton pattern_**.
 
-#### Pattern:
-We implemented the **_Singleton pattern_** to ensure that a class has only one instance while providing a global point of access to it. 
-It also provides a global point of access to that instance. 
-It restricts direct instantiation by making the class's constructor private and provides a static method to retrieve the single instance.
+#### Problem
+Central controllers and GUI managers (such as `GameController`, `MenuController`, and `LanternaGui`) must be shared across various states without creating multiple conflicting instances or repeatedly passing reference parameters.
 
-#### Implementation:
-This pattern was implemented in key components like GameController, MenuController, and LanternaGui by restricting their constructors to prevent direct instantiation. 
-Each class provides a static method that returns the single instance, ensuring that only one object of each exists throughout the game.
+#### Pattern
+The **Singleton Pattern** restricts a class to a single instance and provides a global access point to that instance.
 
-#### Consequences:
-The use of this patterns comes with some consequences such as:
-- Simplified access to shared resources without needing to pass references around.
-- Avoidance of redundant memory allocation for multiple instances of a class.
-- There's a single point of control for managing specific functionality or resources.
-- Only one instance of a class exists, preventing conflicts from multiple instances.
+#### Implementation
+Constructors for key manager classes were set to private, accompanied by static access methods that return the single active instance throughout the application lifecycle.
 
-## UML Diagram
-This UML diagram illustrates the structure of our game, showing how different states, controllers, viewers, and elements interact to create a cohesive system.
-
-<p align="center" justify="center">
-  <img src="Images/UML/ClassDiagram.png"/>
-</p>
-<p align="center">
-  <b><i>Fig 1. UML Diagram</i></b>
-</p>
-
-## Code Structure
-In addiction, we also built a diagram that shows how the code is organized. 
-It breaks down the controllers, models, GUI helpers, states, and viewers, and how they all work together in our game.
-
-<p align="center" justify="center">
-  <img src="Images/UML/CodeStructure.png"/>
-</p>
-<p align="center">
-  <b><i>Fig 2. Code Structure</i></b>
-</p>
-
-## Known-code smells
-There isn't any code smell identified, as we have fixed all errors.
+#### Consequences
+- Prevents resource conflicts and state inconsistencies from multiple instantiations.
+- Reduces memory overhead by reusing single manager instances.
+- Provides consistent global access for shared UI and control operations.
 
 ---
 
-## Testing
+## Architecture & UML Diagrams
 
-### Screenshot of coverage report
-<p align="center" justify="center">
-  <img src="Images/screenshots/TestCoverage.png"/>
-</p>
+### Class Diagram
+The following class diagram illustrates the overall structure of the application, including models, views, controllers, and states:
+
 <p align="center">
-  <b><i>Fig 3. Code coverage screenshot</i></b>
+  <img src="Images/UML/ClassDiagram.png" alt="Class Diagram" width="85%"/>
 </p>
+<p align="center"><i>Figure 1. UML Class Diagram</i></p>
 
-### Link to testing report
-[Tests](../docs/tests/test/index.html)
+### Code Structure Diagram
+The code structure diagram shows component interactions across models, controllers, viewers, states, and GUI wrappers:
+
+<p align="center">
+  <img src="Images/UML/CodeStructure.png" alt="Code Structure Diagram" width="85%"/>
+</p>
+<p align="center"><i>Figure 2. Code Structure Overview</i></p>
 
 ---
 
-## Self-Evalution
-The work was divided in an equal way, and we all contributed with our best. 
+## Code Quality
 
-- Catarina Bastos: 33.3%
-- Nuno Costa: 33.3%
-- Vasco Gonçalves: 33.3%
+No code smells were identified in the final build; code smells and refactoring targets were addressed during development.
+
+---
+
+## Testing & Coverage
+
+### Code Coverage Summary
+Unit tests and property-based tests cover key controllers, models, and state logic using JUnit 5, Mockito, and JQwik.
+
+<p align="center">
+  <img src="Images/screenshots/TestCoverage.png" alt="Test Coverage Report" width="85%"/>
+</p>
+<p align="center"><i>Figure 3. Code Coverage Screenshot</i></p>
+
+### Test Report Link
+Detailed test execution results can be viewed in the generated HTML report: [Test Report](tests/test/index.html).
+
+---
+
+## Self-Evaluation
+
+Work was distributed equally among all team members:
+
+- **Catarina Bastos**: 33.3%
+- **Nuno Costa**: 33.3%
+- **Vasco Gonçalves**: 33.3%
