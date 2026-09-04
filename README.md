@@ -1,4 +1,4 @@
-# BoyGirl Game (LDTS_T13_G08)
+# Labyrinth BoyGirl Game 
 
 BoyGirl Game is a terminal-based 2-player cooperative platformer developed in Java using the **Lanterna** GUI library. Inspired by classic co-op platformers, two players must coordinate movements, trigger buttons, manage timed doors, avoid hazards, collect hearts, and reach level exits together.
 
